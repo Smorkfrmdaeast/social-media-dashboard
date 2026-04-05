@@ -7,18 +7,22 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
-  body { font-family: 'Inter', sans-serif; transition: background 0.3s, color 0.3s; background: #121212; color: #fff; }
-  .glass { backdrop-filter: blur(15px) saturate(180%); background-color: rgba(255,255,255,0.05); border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); transition: transform 0.3s ease; }
-  .glass:hover { transform: translateY(-5px); }
-  .toast { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.7); padding: 15px 25px; border-radius: 10px; color: #fff; opacity: 0; transform: translateX(100%); transition: all 0.5s ease; z-index: 999; }
-  .toast.show { opacity: 1; transform: translateX(0); }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+body { font-family: 'Inter', sans-serif; background: #121212; color: #fff; transition: background 0.3s, color 0.3s; }
+.glass { backdrop-filter: blur(15px) saturate(180%); background-color: rgba(255,255,255,0.05); border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); transition: transform 0.3s ease, background 0.3s ease; }
+.glass:hover { transform: translateY(-5px); }
+.toast { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.8); padding: 15px 25px; border-radius: 10px; color: #fff; opacity: 0; transform: translateX(100%); transition: all 0.5s ease; z-index: 999; }
+.toast.show { opacity: 1; transform: translateX(0); }
+.skeleton { background: rgba(255,255,255,0.05); border-radius: 10px; height: 1rem; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0% { opacity: 0.2; } 50% { opacity: 0.5; } 100% { opacity: 0.2; } }
+.dragging { opacity: 0.5; }
 </style>
 </head>
 <body>
 
 <!-- Header -->
-<header class="flex items-center justify-between p-4 border-b border-gray-700">
+<header class="flex items-center justify-between p-4 border-b border-gray-700 sticky top-0 z-50 bg-gray-900/50 backdrop-blur">
   <h1 class="text-2xl font-bold">SMOK'S TECH DASHBOARD</h1>
   <div class="flex items-center space-x-4">
     <button id="toggleTheme" class="p-2 rounded hover:bg-gray-700 transition">🌓</button>
@@ -29,7 +33,6 @@
   </div>
 </header>
 
-<!-- Main Layout -->
 <div class="flex h-screen overflow-hidden">
 
   <!-- Sidebar -->
@@ -51,7 +54,7 @@
     <p class="text-gray-500 text-xs mt-4">&copy; 2026 SMOK'S TECH</p>
   </aside>
 
-  <!-- Content -->
+  <!-- Main Content -->
   <main class="flex-1 p-6 overflow-y-auto grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 
     <!-- Overview Cards -->
@@ -98,9 +101,9 @@
   <div class="glass p-6 w-96 rounded">
     <h2 class="text-lg font-bold mb-4">Add/Edit Post</h2>
     <form id="postForm" class="space-y-4">
-      <input type="text" id="postTitle" placeholder="Title" class="w-full p-2 rounded bg-gray-800 border border-gray-600">
-      <textarea id="postCaption" placeholder="Caption" class="w-full p-2 rounded bg-gray-800 border border-gray-600"></textarea>
-      <input type="text" id="postImage" placeholder="Image URL" class="w-full p-2 rounded bg-gray-800 border border-gray-600">
+      <input type="text" id="postTitle" placeholder="Title" class="w-full p-2 rounded bg-gray-800 border border-gray-600" required>
+      <textarea id="postCaption" placeholder="Caption" class="w-full p-2 rounded bg-gray-800 border border-gray-600" required></textarea>
+      <input type="text" id="postImage" placeholder="Image URL" class="w-full p-2 rounded bg-gray-800 border border-gray-600" required>
       <div class="flex justify-end space-x-2">
         <button type="button" id="closePostModal" class="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 transition">Cancel</button>
         <button type="submit" class="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 transition">Save</button>
@@ -109,14 +112,13 @@
   </div>
 </div>
 
+<!-- Toast Notification -->
 <div id="toast" class="toast"></div>
 
 <script>
-  // State
+  // ---------- State & Data ----------
   let posts = JSON.parse(localStorage.getItem('posts')) || [];
   let analyticsData = { followers: 1200, likes: 4500, comments: 800 };
-
-  // DOM Elements
   const postsList = document.getElementById('postsList');
   const totalFollowers = document.getElementById('totalFollowers');
   const totalLikes = document.getElementById('totalLikes');
@@ -128,31 +130,29 @@
   const postForm = document.getElementById('postForm');
   const toastEl = document.getElementById('toast');
   const searchPosts = document.getElementById('searchPosts');
-
   const userAvatar = document.getElementById('userAvatar');
   const avatarUpload = document.getElementById('avatarUpload');
 
-  function showToast(message) {
-    toastEl.textContent = message;
-    toastEl.classList.add('show');
-    setTimeout(() => toastEl.classList.remove('show'), 2500);
-  }
+  // ---------- Toast ----------
+  function showToast(msg){ toastEl.textContent = msg; toastEl.classList.add('show'); setTimeout(()=>toastEl.classList.remove('show'),2500); }
 
-  function renderDashboard() {
+  // ---------- Render Dashboard ----------
+  function renderDashboard(){
     totalFollowers.textContent = analyticsData.followers;
     totalLikes.textContent = analyticsData.likes;
     totalComments.textContent = analyticsData.comments;
-
     renderPosts(posts);
     renderActivity();
   }
 
-  function renderPosts(list) {
+  // ---------- Render Posts ----------
+  function renderPosts(list){
     postsList.innerHTML = '';
-    list.forEach((post, index) => {
-      const postEl = document.createElement('div');
-      postEl.className = 'glass p-4 flex flex-col md:flex-row md:justify-between items-start md:items-center space-y-2 md:space-y-0';
-      postEl.innerHTML = `
+    list.forEach((post,index)=>{
+      const postEl=document.createElement('div');
+      postEl.className='glass p-4 flex flex-col md:flex-row md:justify-between items-start md:items-center space-y-2 md:space-y-0';
+      postEl.setAttribute('draggable','true');
+      postEl.innerHTML=`
         <div class="flex items-center space-x-4">
           <img src="${post.image}" alt="Post Image" class="w-16 h-16 rounded object-cover">
           <div>
@@ -166,112 +166,87 @@
           <button onclick="deletePost(${index})" class="px-2 py-1 bg-red-600 rounded hover:bg-red-700 transition">Delete</button>
         </div>
       `;
+      // Drag events
+      postEl.addEventListener('dragstart',()=>{postEl.classList.add('dragging');});
+      postEl.addEventListener('dragend',()=>{postEl.classList.remove('dragging');});
       postsList.appendChild(postEl);
     });
   }
 
-  function renderActivity() {
-    activityFeed.innerHTML = '';
-    posts.slice(-5).reverse().forEach(post => {
-      const li = document.createElement('li');
-      li.textContent = `New post added: ${post.title}`;
+  // ---------- Activity ----------
+  function renderActivity(){
+    activityFeed.innerHTML='';
+    posts.slice(-5).reverse().forEach(post=>{
+      const li=document.createElement('li');
+      li.textContent=`New post added: ${post.title}`;
       activityFeed.appendChild(li);
     });
   }
 
-  function savePosts() {
-    localStorage.setItem('posts', JSON.stringify(posts));
-    renderDashboard();
-  }
+  // ---------- Save Posts ----------
+  function savePosts(){ localStorage.setItem('posts',JSON.stringify(posts)); renderDashboard(); }
 
-  function deletePost(index) {
-    posts.splice(index, 1);
-    savePosts();
-    showToast('Post deleted');
-  }
-
-  function editPost(index) {
-    const post = posts[index];
+  // ---------- Delete/Edit ----------
+  function deletePost(index){ posts.splice(index,1); savePosts(); showToast('Post deleted'); }
+  function editPost(index){
+    const post=posts[index];
     postModal.classList.remove('hidden');
-    document.getElementById('postTitle').value = post.title;
-    document.getElementById('postCaption').value = post.caption;
-    document.getElementById('postImage').value = post.image;
-    postForm.onsubmit = (e) => {
+    document.getElementById('postTitle').value=post.title;
+    document.getElementById('postCaption').value=post.caption;
+    document.getElementById('postImage').value=post.image;
+    postForm.onsubmit=(e)=>{
       e.preventDefault();
-      post.title = document.getElementById('postTitle').value;
-      post.caption = document.getElementById('postCaption').value;
-      post.image = document.getElementById('postImage').value;
-      post.date = new Date().toLocaleString();
-      savePosts();
-      postModal.classList.add('hidden');
-      showToast('Post updated');
+      post.title=document.getElementById('postTitle').value;
+      post.caption=document.getElementById('postCaption').value;
+      post.image=document.getElementById('postImage').value;
+      post.date=new Date().toLocaleString();
+      savePosts(); postModal.classList.add('hidden'); showToast('Post updated'); postForm.reset();
     };
   }
 
-  // Avatar Upload
-  avatarUpload.addEventListener('change', (e) => {
-    const file = e.target.files[0];
+  // ---------- Avatar Upload ----------
+  avatarUpload.addEventListener('change',(e)=>{
+    const file=e.target.files[0];
     if(file){
-      const reader = new FileReader();
-      reader.onload = () => {
-        userAvatar.src = reader.result;
-        localStorage.setItem('userAvatar', reader.result);
-      };
+      const reader=new FileReader();
+      reader.onload=()=>{userAvatar.src=reader.result; localStorage.setItem('userAvatar',reader.result);};
       reader.readAsDataURL(file);
     }
   });
-  if(localStorage.getItem('userAvatar')) userAvatar.src = localStorage.getItem('userAvatar');
+  if(localStorage.getItem('userAvatar')) userAvatar.src=localStorage.getItem('userAvatar');
 
-  // Post Modal
-  openPostModal.addEventListener('click', () => {
+  // ---------- Post Modal ----------
+  openPostModal.addEventListener('click',()=>{
     postModal.classList.remove('hidden');
-    postForm.onsubmit = (e) => {
+    postForm.onsubmit=(e)=>{
       e.preventDefault();
-      const newPost = {
-        title: document.getElementById('postTitle').value,
-        caption: document.getElementById('postCaption').value,
-        image: document.getElementById('postImage').value,
-        date: new Date().toLocaleString()
-      };
-      posts.push(newPost);
-      savePosts();
-      postModal.classList.add('hidden');
-      showToast('Post added');
-      postForm.reset();
+      const newPost={title:document.getElementById('postTitle').value,caption:document.getElementById('postCaption').value,image:document.getElementById('postImage').value,date:new Date().toLocaleString()};
+      posts.push(newPost); savePosts(); postModal.classList.add('hidden'); showToast('Post added'); postForm.reset();
     };
   });
-  closePostModal.addEventListener('click', () => postModal.classList.add('hidden'));
+  closePostModal.addEventListener('click',()=>postModal.classList.add('hidden'));
 
-  // Search Posts
-  searchPosts.addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase();
-    renderPosts(posts.filter(p => p.title.toLowerCase().includes(query) || p.caption.toLowerCase().includes(query)));
+  // ---------- Search ----------
+  searchPosts.addEventListener('input',(e)=>{
+    const query=e.target.value.toLowerCase();
+    renderPosts(posts.filter(p=>p.title.toLowerCase().includes(query)||p.caption.toLowerCase().includes(query)));
   });
 
-  // Analytics Chart
-  const ctx = document.getElementById('analyticsChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-      datasets:[
-        {label:'Followers', data:[1200,1250,1300,1320,1350,1400,1450], borderColor:'#4ade80', backgroundColor:'rgba(74,222,128,0.2)', tension:0.4},
-        {label:'Likes', data:[4000,4100,4300,4400,4500,4600,4700], borderColor:'#60a5fa', backgroundColor:'rgba(96,165,250,0.2)', tension:0.4},
-        {label:'Comments', data:[600,650,700,720,750,770,800], borderColor:'#facc15', backgroundColor:'rgba(250,204,21,0.2)', tension:0.4}
-      ]
-    },
-    options:{responsive:true,plugins:{legend:{labels:{color:'white'}}},scales:{x:{ticks:{color:'white'}},y:{ticks:{color:'white'}}}}
-  });
+  // ---------- Analytics Chart ----------
+  const ctx=document.getElementById('analyticsChart').getContext('2d');
+  new Chart(ctx,{type:'line',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[
+    {label:'Followers',data:[1200,1250,1300,1320,1350,1400,1450],borderColor:'#4ade80',backgroundColor:'rgba(74,222,128,0.2)',tension:0.4},
+    {label:'Likes',data:[4000,4100,4300,4400,4500,4600,4700],borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,0.2)',tension:0.4},
+    {label:'Comments',data:[600,650,700,720,750,770,800],borderColor:'#facc15',backgroundColor:'rgba(250,204,21,0.2)',tension:0.4}
+  ]},options:{responsive:true,plugins:{legend:{labels:{color:'white'}}},scales:{x:{ticks:{color:'white'}},y:{ticks:{color:'white'}}}}});
 
-  // Dark/Light Toggle
-  document.getElementById('toggleTheme').addEventListener('click', () => {
-    document.body.classList.toggle('bg-white');
-    document.body.classList.toggle('text-black');
-    document.querySelectorAll('.glass').forEach(el => el.classList.toggle('bg-white/5'));
+  // ---------- Dark/Light Mode ----------
+  document.getElementById('toggleTheme').addEventListener('click',()=>{
+    document.body.classList.toggle('bg-white'); document.body.classList.toggle('text-black');
+    document.querySelectorAll('.glass').forEach(el=>el.classList.toggle('bg-white/5'));
   });
 
   renderDashboard();
 </script>
-
 </body>
         </html>
