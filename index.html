@@ -1,55 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Social Media Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      background: #121212;
-      font-family: 'Inter', sans-serif;
-    }
-    .glass {
-      backdrop-filter: blur(10px) saturate(180%);
-      background-color: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 15px;
-    }
-    .toast {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: rgba(255,255,255,0.1);
-      padding: 15px 25px;
-      border-radius: 10px;
-      backdrop-filter: blur(10px);
-      color: #fff;
-      opacity: 0;
-      transform: translateX(100%);
-      transition: all 0.5s ease;
-      z-index: 999;
-    }
-    .toast.show {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMOK'S TECH Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  body { background: #121212; font-family: 'Inter', sans-serif; transition: background 0.3s, color 0.3s; }
+  .glass { backdrop-filter: blur(10px) saturate(180%); background-color: rgba(255,255,255,0.05); border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
+  .toast { position: fixed; top: 20px; right: 20px; background: rgba(255,255,255,0.1); padding: 15px 25px; border-radius: 10px; backdrop-filter: blur(10px); color: #fff; opacity: 0; transform: translateX(100%); transition: all 0.5s ease; z-index: 999; }
+  .toast.show { opacity:1; transform: translateX(0); }
+</style>
 </head>
 <body class="text-white">
 
-  <!-- Header -->
-  <header class="flex items-center justify-between p-6 border-b border-gray-700">
-    <h1 class="text-2xl font-bold">SMORK SOCIAL DASHBOARD</h1>
-    <div class="flex items-center space-x-4">
-      <button id="toggleTheme" class="p-2 rounded hover:bg-gray-700 transition">🌓</button>
-      <img src="https://via.placeholder.com/40" class="rounded-full" alt="Avatar">
+<!-- Header -->
+<header class="flex items-center justify-between p-4 border-b border-gray-700">
+  <h1 class="text-2xl font-bold">SMOK'S TECH DASHBOARD</h1>
+  <div class="flex items-center space-x-4">
+    <button id="toggleTheme" class="p-2 rounded hover:bg-gray-700 transition">🌓</button>
+    <div class="relative">
+      <img id="userAvatar" src="https://via.placeholder.com/40" class="rounded-full cursor-pointer w-10 h-10" alt="Avatar">
+      <input id="avatarUpload" type="file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer">
     </div>
-  </header>
+  </div>
+</header>
 
-  <!-- Main Dashboard -->
-  <main class="p-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+<!-- Sidebar + Main -->
+<div class="flex h-screen overflow-hidden">
+  <!-- Sidebar -->
+  <aside class="w-20 md:w-60 bg-gray-900 p-4 flex flex-col justify-between">
+    <div class="space-y-6">
+      <nav class="flex flex-col space-y-4">
+        <a href="#" class="hover:text-blue-400 transition">Dashboard</a>
+        <a href="#" class="hover:text-blue-400 transition">Posts</a>
+        <a href="#" class="hover:text-blue-400 transition">Analytics</a>
+        <a href="#" class="hover:text-blue-400 transition">Activity</a>
+      </nav>
+    </div>
+    <div class="space-y-2 text-gray-400 text-sm">
+      <p>Socials:</p>
+      <div class="flex flex-col space-y-1">
+        <a href="https://www.instagram.com/smork_frmdaeast?igsh=MWwwMHowMGhvcmY0dg==" target="_blank" class="hover:text-pink-500 transition">Instagram</a>
+        <a href="https://www.facebook.com/share/1DhHJPTRXL/" target="_blank" class="hover:text-blue-500 transition">Facebook</a>
+        <a href="https://github.com/Smorkfrmdaeast" target="_blank" class="hover:text-gray-400 transition">GitHub</a>
+        <a href="mailto:ifeanyinuels32@gmail.com" class="hover:text-green-500 transition">Email</a>
+        <span>WhatsApp: 09019071679</span>
+      </div>
+    </div>
+    <p class="text-gray-500 text-xs">&copy; 2026 SMOK'S TECH</p>
+  </aside>
+
+  <!-- Main -->
+  <main class="flex-1 p-6 overflow-y-auto grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 
     <!-- Overview Cards -->
     <div class="glass p-6 space-y-4 hover:scale-105 transition">
@@ -77,194 +81,190 @@
         <h2 class="text-lg font-semibold">Posts</h2>
         <button id="openPostModal" class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 transition">+ Add Post</button>
       </div>
-      <div id="postsList" class="space-y-4">
-        <!-- Posts dynamically inserted here -->
-      </div>
+      <div id="postsList" class="space-y-4"></div>
     </div>
 
     <!-- Activity Feed -->
     <div class="glass p-6 col-span-1 md:col-span-2 lg:col-span-3">
       <h2 class="text-lg font-semibold mb-4">Recent Activity</h2>
-      <ul id="activityFeed" class="space-y-2 text-gray-300">
-        <!-- Activity dynamically inserted -->
-      </ul>
-    </div>
-
-    <!-- Profile Section -->
-    <div class="glass p-6 col-span-1 md:col-span-2 lg:col-span-3 flex flex-col md:flex-row items-center md:justify-between space-y-4 md:space-y-0">
-      <div class="flex items-center space-x-4">
-        <img src="https://via.placeholder.com/80" class="rounded-full" alt="User Avatar">
-        <div>
-          <h2 class="font-bold text-xl">Smork FrmDaEast</h2>
-          <p class="text-gray-300">Frontend / Mobile Dev</p>
-        </div>
-      </div>
-      <div class="flex space-x-4">
-        <a href="https://www.instagram.com/smork_frmdaeast?igsh=MWwwMHowMGhvcmY0dg==" target="_blank" class="hover:text-pink-500 transition">Instagram</a>
-        <a href="https://www.facebook.com/share/1DhHJPTRXL/" target="_blank" class="hover:text-blue-500 transition">Facebook</a>
-        <a href="https://github.com/Smorkfrmdaeast" target="_blank" class="hover:text-gray-400 transition">GitHub</a>
-        <a href="mailto:ifeanyinuels32@gmail.com" class="hover:text-green-500 transition">Email</a>
-        <span>WhatsApp: 09019071679</span>
-      </div>
+      <ul id="activityFeed" class="space-y-2 text-gray-300"></ul>
     </div>
 
   </main>
+</div>
 
-  <!-- Post Modal -->
-  <div id="postModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="glass p-6 w-96 rounded">
-      <h2 class="text-lg font-bold mb-4">Add/Edit Post</h2>
-      <form id="postForm" class="space-y-4">
-        <input type="text" id="postTitle" placeholder="Title" class="w-full p-2 rounded bg-gray-800 border border-gray-600">
-        <textarea id="postCaption" placeholder="Caption" class="w-full p-2 rounded bg-gray-800 border border-gray-600"></textarea>
-        <input type="text" id="postImage" placeholder="Image URL" class="w-full p-2 rounded bg-gray-800 border border-gray-600">
-        <div class="flex justify-end space-x-2">
-          <button type="button" id="closePostModal" class="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 transition">Cancel</button>
-          <button type="submit" class="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 transition">Save</button>
-        </div>
-      </form>
-    </div>
+<!-- Post Modal -->
+<div id="postModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+  <div class="glass p-6 w-96 rounded">
+    <h2 class="text-lg font-bold mb-4">Add/Edit Post</h2>
+    <form id="postForm" class="space-y-4">
+      <input type="text" id="postTitle" placeholder="Title" class="w-full p-2 rounded bg-gray-800 border border-gray-600">
+      <textarea id="postCaption" placeholder="Caption" class="w-full p-2 rounded bg-gray-800 border border-gray-600"></textarea>
+      <input type="text" id="postImage" placeholder="Image URL" class="w-full p-2 rounded bg-gray-800 border border-gray-600">
+      <div class="flex justify-end space-x-2">
+        <button type="button" id="closePostModal" class="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 transition">Cancel</button>
+        <button type="submit" class="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 transition">Save</button>
+      </div>
+    </form>
   </div>
+</div>
 
-  <!-- Toast Notification -->
-  <div id="toast" class="toast"></div>
+<div id="toast" class="toast"></div>
 
-  <script>
-    // State
-    let posts = JSON.parse(localStorage.getItem('posts')) || [];
-    let analyticsData = { followers: 1200, likes: 4500, comments: 800 };
+<script>
+  // State
+  let posts = JSON.parse(localStorage.getItem('posts')) || [];
+  let analyticsData = { followers: 1200, likes: 4500, comments: 800 };
 
-    // DOM Elements
-    const postsList = document.getElementById('postsList');
-    const totalFollowers = document.getElementById('totalFollowers');
-    const totalLikes = document.getElementById('totalLikes');
-    const totalComments = document.getElementById('totalComments');
-    const activityFeed = document.getElementById('activityFeed');
-    const postModal = document.getElementById('postModal');
-    const openPostModal = document.getElementById('openPostModal');
-    const closePostModal = document.getElementById('closePostModal');
-    const postForm = document.getElementById('postForm');
-    const toastEl = document.getElementById('toast');
+  // DOM Elements
+  const postsList = document.getElementById('postsList');
+  const totalFollowers = document.getElementById('totalFollowers');
+  const totalLikes = document.getElementById('totalLikes');
+  const totalComments = document.getElementById('totalComments');
+  const activityFeed = document.getElementById('activityFeed');
+  const postModal = document.getElementById('postModal');
+  const openPostModal = document.getElementById('openPostModal');
+  const closePostModal = document.getElementById('closePostModal');
+  const postForm = document.getElementById('postForm');
+  const toastEl = document.getElementById('toast');
 
-    // Functions
-    function showToast(message) {
-      toastEl.textContent = message;
-      toastEl.classList.add('show');
-      setTimeout(() => toastEl.classList.remove('show'), 2500);
-    }
+  const userAvatar = document.getElementById('userAvatar');
+  const avatarUpload = document.getElementById('avatarUpload');
 
-    function renderDashboard() {
-      totalFollowers.textContent = analyticsData.followers;
-      totalLikes.textContent = analyticsData.likes;
-      totalComments.textContent = analyticsData.comments;
+  // Functions
+  function showToast(message) {
+    toastEl.textContent = message;
+    toastEl.classList.add('show');
+    setTimeout(() => toastEl.classList.remove('show'), 2500);
+  }
 
-      postsList.innerHTML = '';
-      posts.forEach((post, index) => {
-        const postEl = document.createElement('div');
-        postEl.className = 'glass p-4 flex flex-col md:flex-row md:justify-between items-start md:items-center space-y-2 md:space-y-0 hover:scale-105 transition';
-        postEl.innerHTML = `
-          <div class="flex items-center space-x-4">
-            <img src="${post.image}" alt="Post Image" class="w-16 h-16 rounded object-cover">
-            <div>
-              <h3 class="font-bold">${post.title}</h3>
-              <p class="text-gray-300 text-sm">${post.caption}</p>
-              <p class="text-gray-500 text-xs">${post.date}</p>
-            </div>
+  function renderDashboard() {
+    totalFollowers.textContent = analyticsData.followers;
+    totalLikes.textContent = analyticsData.likes;
+    totalComments.textContent = analyticsData.comments;
+
+    postsList.innerHTML = '';
+    posts.forEach((post, index) => {
+      const postEl = document.createElement('div');
+      postEl.className = 'glass p-4 flex flex-col md:flex-row md:justify-between items-start md:items-center space-y-2 md:space-y-0 hover:scale-105 transition';
+      postEl.innerHTML = `
+        <div class="flex items-center space-x-4">
+          <img src="${post.image}" alt="Post Image" class="w-16 h-16 rounded object-cover">
+          <div>
+            <h3 class="font-bold">${post.title}</h3>
+            <p class="text-gray-300 text-sm">${post.caption}</p>
+            <p class="text-gray-500 text-xs">${post.date}</p>
           </div>
-          <div class="flex space-x-2">
-            <button onclick="editPost(${index})" class="px-2 py-1 bg-yellow-500 rounded hover:bg-yellow-600 transition">Edit</button>
-            <button onclick="deletePost(${index})" class="px-2 py-1 bg-red-600 rounded hover:bg-red-700 transition">Delete</button>
-          </div>
-        `;
-        postsList.appendChild(postEl);
-      });
-    }
-
-    function renderActivity() {
-      activityFeed.innerHTML = '';
-      posts.slice(-5).reverse().forEach(post => {
-        const li = document.createElement('li');
-        li.textContent = `New post added: ${post.title}`;
-        activityFeed.appendChild(li);
-      });
-    }
-
-    function savePosts() {
-      localStorage.setItem('posts', JSON.stringify(posts));
-      renderDashboard();
-      renderActivity();
-    }
-
-    function deletePost(index) {
-      posts.splice(index, 1);
-      savePosts();
-      showToast('Post deleted');
-    }
-
-    function editPost(index) {
-      const post = posts[index];
-      postModal.classList.remove('hidden');
-      document.getElementById('postTitle').value = post.title;
-      document.getElementById('postCaption').value = post.caption;
-      document.getElementById('postImage').value = post.image;
-      postForm.onsubmit = (e) => {
-        e.preventDefault();
-        post.title = document.getElementById('postTitle').value;
-        post.caption = document.getElementById('postCaption').value;
-        post.image = document.getElementById('postImage').value;
-        post.date = new Date().toLocaleString();
-        savePosts();
-        postModal.classList.add('hidden');
-        showToast('Post updated');
-      };
-    }
-
-    // Event Listeners
-    openPostModal.addEventListener('click', () => {
-      postModal.classList.remove('hidden');
-      postForm.onsubmit = (e) => {
-        e.preventDefault();
-        const newPost = {
-          title: document.getElementById('postTitle').value,
-          caption: document.getElementById('postCaption').value,
-          image: document.getElementById('postImage').value,
-          date: new Date().toLocaleString()
-        };
-        posts.push(newPost);
-        savePosts();
-        postModal.classList.add('hidden');
-        showToast('Post added');
-        postForm.reset();
-      };
+        </div>
+        <div class="flex space-x-2">
+          <button onclick="editPost(${index})" class="px-2 py-1 bg-yellow-500 rounded hover:bg-yellow-600 transition">Edit</button>
+          <button onclick="deletePost(${index})" class="px-2 py-1 bg-red-600 rounded hover:bg-red-700 transition">Delete</button>
+        </div>
+      `;
+      postsList.appendChild(postEl);
     });
+  }
 
-    closePostModal.addEventListener('click', () => postModal.classList.add('hidden'));
-
-    // Analytics Chart
-    const ctx = document.getElementById('analyticsChart').getContext('2d');
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        datasets: [
-          { label: 'Followers', data: [1200, 1250, 1300, 1320, 1350, 1400, 1450], borderColor: '#4ade80', backgroundColor: 'rgba(74, 222, 128, 0.2)', tension: 0.4 },
-          { label: 'Likes', data: [4000, 4100, 4300, 4400, 4500, 4600, 4700], borderColor: '#60a5fa', backgroundColor: 'rgba(96, 165, 250, 0.2)', tension: 0.4 },
-          { label: 'Comments', data: [600, 650, 700, 720, 750, 770, 800], borderColor: '#facc15', backgroundColor: 'rgba(250, 204, 21, 0.2)', tension: 0.4 }
-        ]
-      },
-      options: { responsive: true, plugins: { legend: { labels: { color: 'white' } } }, scales: { x: { ticks: { color: 'white' } }, y: { ticks: { color: 'white' } } } }
+  function renderActivity() {
+    activityFeed.innerHTML = '';
+    posts.slice(-5).reverse().forEach(post => {
+      const li = document.createElement('li');
+      li.textContent = `New post added: ${post.title}`;
+      activityFeed.appendChild(li);
     });
+  }
 
-    // Dark/Light Toggle
-    document.getElementById('toggleTheme').addEventListener('click', () => {
-      document.body.classList.toggle('bg-white');
-      document.body.classList.toggle('text-black');
-      document.querySelectorAll('.glass').forEach(el => el.classList.toggle('bg-white/5'));
-    });
-
-    // Initial Render
+  function savePosts() {
+    localStorage.setItem('posts', JSON.stringify(posts));
     renderDashboard();
     renderActivity();
-  </script>
+  }
+
+  function deletePost(index) {
+    posts.splice(index, 1);
+    savePosts();
+    showToast('Post deleted');
+  }
+
+  function editPost(index) {
+    const post = posts[index];
+    postModal.classList.remove('hidden');
+    document.getElementById('postTitle').value = post.title;
+    document.getElementById('postCaption').value = post.caption;
+    document.getElementById('postImage').value = post.image;
+    postForm.onsubmit = (e) => {
+      e.preventDefault();
+      post.title = document.getElementById('postTitle').value;
+      post.caption = document.getElementById('postCaption').value;
+      post.image = document.getElementById('postImage').value;
+      post.date = new Date().toLocaleString();
+      savePosts();
+      postModal.classList.add('hidden');
+      showToast('Post updated');
+    };
+  }
+
+  // Avatar Upload
+  avatarUpload.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        userAvatar.src = reader.result;
+        localStorage.setItem('userAvatar', reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+  // Load avatar from localStorage
+  if(localStorage.getItem('userAvatar')) userAvatar.src = localStorage.getItem('userAvatar');
+
+  // Event Listeners
+  openPostModal.addEventListener('click', () => {
+    postModal.classList.remove('hidden');
+    postForm.onsubmit = (e) => {
+      e.preventDefault();
+      const newPost = {
+        title: document.getElementById('postTitle').value,
+        caption: document.getElementById('postCaption').value,
+        image: document.getElementById('postImage').value,
+        date: new Date().toLocaleString()
+      };
+      posts.push(newPost);
+      savePosts();
+      postModal.classList.add('hidden');
+      showToast('Post added');
+      postForm.reset();
+    };
+  });
+
+  closePostModal.addEventListener('click', () => postModal.classList.add('hidden'));
+
+  // Analytics Chart
+  const ctx = document.getElementById('analyticsChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+      datasets:[
+        {label:'Followers', data:[1200,1250,1300,1320,1350,1400,1450], borderColor:'#4ade80', backgroundColor:'rgba(74,222,128,0.2)', tension:0.4},
+        {label:'Likes', data:[4000,4100,4300,4400,4500,4600,4700], borderColor:'#60a5fa', backgroundColor:'rgba(96,165,250,0.2)', tension:0.4},
+        {label:'Comments', data:[600,650,700,720,750,770,800], borderColor:'#facc15', backgroundColor:'rgba(250,204,21,0.2)', tension:0.4}
+      ]
+    },
+    options:{responsive:true,plugins:{legend:{labels:{color:'white'}}},scales:{x:{ticks:{color:'white'}},y:{ticks:{color:'white'}}}}
+  });
+
+  // Dark/Light Toggle
+  document.getElementById('toggleTheme').addEventListener('click', () => {
+    document.body.classList.toggle('bg-white');
+    document.body.classList.toggle('text-black');
+    document.querySelectorAll('.glass').forEach(el => el.classList.toggle('bg-white/5'));
+  });
+
+  renderDashboard();
+  renderActivity();
+</script>
+
 </body>
-  </html>
+</html>
