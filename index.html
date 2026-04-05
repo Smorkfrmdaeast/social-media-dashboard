@@ -3,20 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SMORK Social SaaS</title>
+<title>SMORK SaaS Dashboard</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
 <style>
-body { background:#0b0f1a; color:white; font-family:system-ui; }
+body { background:#05060f; color:white; font-family:system-ui; }
 
-.glass {
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(12px);
-  border:1px solid rgba(255,255,255,0.1);
+/* SIDEBAR */
+.sidebar {
+  width:240px;
+  background:#070914;
+  border-right:1px solid rgba(255,255,255,0.05);
 }
 
+/* GLASS */
+.glass {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(14px);
+  border:1px solid rgba(255,255,255,0.08);
+}
+
+/* NEON */
+.neon {
+  box-shadow:0 0 20px rgba(250,204,21,0.3);
+}
+
+/* HOVER */
+.hover-scale { transition:.3s; }
+.hover-scale:hover { transform:translateY(-4px) scale(1.02); }
+
+/* TOAST */
 .toast {
   position:fixed;
   bottom:20px;
@@ -27,54 +45,81 @@ body { background:#0b0f1a; color:white; font-family:system-ui; }
   opacity:0;
   transition:.3s;
 }
+
+/* FADE */
+.fade { animation:fade .4s ease; }
+@keyframes fade { from{opacity:0;transform:translateY(10px);} to{opacity:1;} }
+
 </style>
 </head>
 
-<body class="p-4">
+<body class="flex">
 
-<!-- HEADER -->
-<div class="flex justify-between items-center mb-6">
-  <h1 class="font-bold text-xl">📊 SMORK SOCIAL</h1>
+<!-- SIDEBAR -->
+<div class="sidebar h-screen p-5 flex flex-col justify-between">
 
-  <div class="flex items-center gap-3">
+  <div>
+    <h1 class="text-xl font-bold mb-10">⚡ SMORK</h1>
+
+    <div class="space-y-4 text-sm text-gray-400">
+      <p class="cursor-pointer text-white">Dashboard</p>
+      <p>Analytics</p>
+      <p>Posts</p>
+      <p>Activity</p>
+    </div>
+  </div>
+
+  <!-- SOCIAL -->
+  <div class="flex gap-4 text-lg">
     <a href="https://github.com/Smorkfrmdaeast" target="_blank"><i class="fa-brands fa-github"></i></a>
     <a href="https://www.instagram.com/smork_frmdaeast" target="_blank"><i class="fa-brands fa-instagram"></i></a>
     <a href="https://www.facebook.com/share/1DhHJPTRXL/" target="_blank"><i class="fa-brands fa-facebook"></i></a>
+  </div>
+
+</div>
+
+<!-- MAIN -->
+<div class="flex-1 p-6">
+
+<!-- HEADER -->
+<div class="flex justify-between items-center mb-6">
+  <h2 class="text-xl font-bold">Dashboard</h2>
+
+  <div class="flex items-center gap-4">
+    <button onclick="toggleTheme()" class="text-sm text-gray-400">Toggle Theme</button>
     <img src="https://i.pravatar.cc/40" class="rounded-full"/>
   </div>
 </div>
 
-<!-- PROFILE -->
-<div class="glass p-4 rounded-xl mb-6 flex justify-between items-center">
-  <div>
-    <h2 class="font-bold">SMORK</h2>
-    <p class="text-gray-400 text-sm">Software Engineer / Web Developer</p>
-    <p class="text-xs text-gray-500">ifeanyinuels32@gmail.com</p>
-  </div>
-
-  <a href="https://wa.me/2349019071679" target="_blank" class="bg-green-500 px-3 py-2 rounded text-black">
-    Chat
-  </a>
-</div>
-
-<!-- SEARCH -->
-<input oninput="searchPost(this.value)" placeholder="Search posts..." class="w-full p-2 mb-6 rounded text-black"/>
-
 <!-- STATS -->
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-  <div class="glass p-3 rounded">Followers<br><b>12.4K</b></div>
-  <div class="glass p-3 rounded">Likes<br><b>8.1K</b></div>
-  <div class="glass p-3 rounded">Comments<br><b>1.2K</b></div>
-  <div class="glass p-3 rounded">Shares<br><b>900</b></div>
+  <div class="glass p-4 rounded-xl hover-scale neon">Followers<br><span class="text-yellow-400 text-xl">12.4K</span></div>
+  <div class="glass p-4 rounded-xl hover-scale">Likes<br><span class="text-green-400 text-xl">8.1K</span></div>
+  <div class="glass p-4 rounded-xl hover-scale">Comments<br><span class="text-blue-400 text-xl">1.2K</span></div>
+  <div class="glass p-4 rounded-xl hover-scale">Shares<br><span class="text-pink-400 text-xl">900</span></div>
+</div>
+
+<!-- CHART -->
+<div class="glass p-4 rounded-xl mb-6 hover-scale">
+  <h3 class="mb-2">Engagement</h3>
+  <canvas id="chart" height="100"></canvas>
 </div>
 
 <!-- POSTS -->
 <div class="flex justify-between mb-3">
-  <h2>Posts</h2>
-  <button onclick="openModal()" class="bg-yellow-400 text-black px-3 py-1 rounded">+ Add</button>
+  <h3>Posts</h3>
+  <button onclick="openModal()" class="bg-yellow-400 text-black px-3 py-1 rounded neon">+ Add</button>
 </div>
 
 <div id="posts" class="grid md:grid-cols-3 gap-4"></div>
+
+<!-- ACTIVITY -->
+<div class="glass p-4 rounded-xl mt-6">
+  <h3>Activity</h3>
+  <div id="activity"></div>
+</div>
+
+</div>
 
 <!-- MODAL -->
 <div id="modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center">
@@ -89,27 +134,21 @@ body { background:#0b0f1a; color:white; font-family:system-ui; }
 
 <div id="toast" class="toast"></div>
 
-<!-- FLOATING WHATSAPP -->
+<!-- WHATSAPP -->
 <a href="https://wa.me/2349019071679" target="_blank"
-class="fixed bottom-5 left-5 bg-green-500 p-4 rounded-full text-black">
+class="fixed bottom-5 left-5 bg-green-500 p-4 rounded-full text-black neon">
 <i class="fa-brands fa-whatsapp"></i>
 </a>
 
 <script>
+// STATE
 const state = {
   posts: JSON.parse(localStorage.getItem("posts")) || [],
-  filtered: null
+  activity:[]
 };
 
 renderPosts();
-
-// SEARCH
-function searchPost(q){
-  state.filtered = state.posts.filter(p =>
-    p.title.toLowerCase().includes(q.toLowerCase())
-  );
-  renderPosts();
-}
+drawChart();
 
 // MODAL
 function openModal(){ modal.classList.remove("hidden"); }
@@ -128,15 +167,18 @@ function savePost(){
 
   state.posts.unshift(p);
   localStorage.setItem("posts", JSON.stringify(state.posts));
+
+  addActivity("New post added");
   renderPosts();
   closeModal();
-  toast("Post Added ✅");
+  toast("Saved ✅");
 }
 
 // LIKE
 function likePost(i){
   state.posts[i].likes++;
   localStorage.setItem("posts", JSON.stringify(state.posts));
+  addActivity("Post liked ❤️");
   renderPosts();
 }
 
@@ -144,24 +186,22 @@ function likePost(i){
 function deletePost(i){
   state.posts.splice(i,1);
   localStorage.setItem("posts", JSON.stringify(state.posts));
+  addActivity("Post deleted ❌");
   renderPosts();
-  toast("Deleted ❌");
 }
 
 // RENDER
 function renderPosts(){
   posts.innerHTML="";
-  const list = state.filtered || state.posts;
-
-  list.forEach((p,i)=>{
+  state.posts.forEach((p,i)=>{
     posts.innerHTML+=`
-    <div class="glass p-3 rounded">
+    <div class="glass p-3 rounded-xl hover-scale fade">
       <img src="${p.img}" class="h-32 w-full object-cover rounded mb-2"/>
       <h3>${p.title}</h3>
       <p class="text-gray-400 text-sm">${p.caption}</p>
 
       <div class="flex justify-between mt-2 text-sm">
-        <span>💙 ${p.likes}</span>
+        <span>❤️ ${p.likes}</span>
         <div class="flex gap-2">
           <button onclick="likePost(${i})">Like</button>
           <button onclick="deletePost(${i})" class="text-red-400">Delete</button>
@@ -171,6 +211,14 @@ function renderPosts(){
   });
 }
 
+// ACTIVITY
+function addActivity(text){
+  state.activity.unshift(text);
+  activity.innerHTML = state.activity.slice(0,5)
+    .map(a=>`<div class="text-gray-400 text-sm fade">${a}</div>`)
+    .join("");
+}
+
 // TOAST
 function toast(msg){
   const t=document.getElementById("toast");
@@ -178,7 +226,34 @@ function toast(msg){
   t.style.opacity=1;
   setTimeout(()=>t.style.opacity=0,2000);
 }
+
+// CHART
+function drawChart(){
+  const ctx=chart.getContext("2d");
+  const data=[40,80,60,90,50];
+
+  let p=0;
+  function draw(){
+    ctx.clearRect(0,0,300,100);
+    p+=0.05;
+
+    data.forEach((v,i)=>{
+      const h=v*p;
+      ctx.fillStyle="#facc15";
+      ctx.fillRect(i*50+10,100-h,30,h);
+    });
+
+    if(p<1) requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// THEME
+function toggleTheme(){
+  document.body.style.background =
+    document.body.style.background === "white" ? "#05060f" : "white";
+}
 </script>
 
 </body>
-      </html>
+</html>
