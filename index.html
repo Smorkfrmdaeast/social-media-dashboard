@@ -7,13 +7,15 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  body { background: #121212; font-family: 'Inter', sans-serif; transition: background 0.3s, color 0.3s; }
-  .glass { backdrop-filter: blur(10px) saturate(180%); background-color: rgba(255,255,255,0.05); border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
-  .toast { position: fixed; top: 20px; right: 20px; background: rgba(255,255,255,0.1); padding: 15px 25px; border-radius: 10px; backdrop-filter: blur(10px); color: #fff; opacity: 0; transform: translateX(100%); transition: all 0.5s ease; z-index: 999; }
-  .toast.show { opacity:1; transform: translateX(0); }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+  body { font-family: 'Inter', sans-serif; transition: background 0.3s, color 0.3s; background: #121212; color: #fff; }
+  .glass { backdrop-filter: blur(15px) saturate(180%); background-color: rgba(255,255,255,0.05); border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); transition: transform 0.3s ease; }
+  .glass:hover { transform: translateY(-5px); }
+  .toast { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.7); padding: 15px 25px; border-radius: 10px; color: #fff; opacity: 0; transform: translateX(100%); transition: all 0.5s ease; z-index: 999; }
+  .toast.show { opacity: 1; transform: translateX(0); }
 </style>
 </head>
-<body class="text-white">
+<body>
 
 <!-- Header -->
 <header class="flex items-center justify-between p-4 border-b border-gray-700">
@@ -21,50 +23,47 @@
   <div class="flex items-center space-x-4">
     <button id="toggleTheme" class="p-2 rounded hover:bg-gray-700 transition">🌓</button>
     <div class="relative">
-      <img id="userAvatar" src="https://via.placeholder.com/40" class="rounded-full cursor-pointer w-10 h-10" alt="Avatar">
-      <input id="avatarUpload" type="file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer">
+      <img id="userAvatar" src="https://via.placeholder.com/40" class="rounded-full cursor-pointer w-10 h-10 border-2 border-gray-500" alt="Avatar">
+      <input id="avatarUpload" type="file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer rounded-full">
     </div>
   </div>
 </header>
 
-<!-- Sidebar + Main -->
+<!-- Main Layout -->
 <div class="flex h-screen overflow-hidden">
+
   <!-- Sidebar -->
-  <aside class="w-20 md:w-60 bg-gray-900 p-4 flex flex-col justify-between">
-    <div class="space-y-6">
-      <nav class="flex flex-col space-y-4">
-        <a href="#" class="hover:text-blue-400 transition">Dashboard</a>
-        <a href="#" class="hover:text-blue-400 transition">Posts</a>
-        <a href="#" class="hover:text-blue-400 transition">Analytics</a>
-        <a href="#" class="hover:text-blue-400 transition">Activity</a>
-      </nav>
-    </div>
-    <div class="space-y-2 text-gray-400 text-sm">
+  <aside class="w-20 md:w-64 bg-gray-900 p-4 flex flex-col justify-between">
+    <nav class="space-y-6">
+      <a href="#" class="hover:text-blue-400 transition flex items-center space-x-2"><span>🏠</span><span class="hidden md:inline">Dashboard</span></a>
+      <a href="#" class="hover:text-blue-400 transition flex items-center space-x-2"><span>📝</span><span class="hidden md:inline">Posts</span></a>
+      <a href="#" class="hover:text-blue-400 transition flex items-center space-x-2"><span>📊</span><span class="hidden md:inline">Analytics</span></a>
+      <a href="#" class="hover:text-blue-400 transition flex items-center space-x-2"><span>⚡</span><span class="hidden md:inline">Activity</span></a>
+    </nav>
+    <div class="mt-6 text-gray-400 text-sm space-y-2">
       <p>Socials:</p>
-      <div class="flex flex-col space-y-1">
-        <a href="https://www.instagram.com/smork_frmdaeast?igsh=MWwwMHowMGhvcmY0dg==" target="_blank" class="hover:text-pink-500 transition">Instagram</a>
-        <a href="https://www.facebook.com/share/1DhHJPTRXL/" target="_blank" class="hover:text-blue-500 transition">Facebook</a>
-        <a href="https://github.com/Smorkfrmdaeast" target="_blank" class="hover:text-gray-400 transition">GitHub</a>
-        <a href="mailto:ifeanyinuels32@gmail.com" class="hover:text-green-500 transition">Email</a>
-        <span>WhatsApp: 09019071679</span>
-      </div>
+      <a href="https://www.instagram.com/smork_frmdaeast?igsh=MWwwMHowMGhvcmY0dg==" target="_blank" class="hover:text-pink-500 transition flex items-center space-x-1"><span>📸</span><span class="hidden md:inline">Instagram</span></a>
+      <a href="https://www.facebook.com/share/1DhHJPTRXL/" target="_blank" class="hover:text-blue-500 transition flex items-center space-x-1"><span>📘</span><span class="hidden md:inline">Facebook</span></a>
+      <a href="https://github.com/Smorkfrmdaeast" target="_blank" class="hover:text-gray-400 transition flex items-center space-x-1"><span>💻</span><span class="hidden md:inline">GitHub</span></a>
+      <a href="mailto:ifeanyinuels32@gmail.com" class="hover:text-green-500 transition flex items-center space-x-1"><span>📧</span><span class="hidden md:inline">Email</span></a>
+      <span>📱 WhatsApp: 09019071679</span>
     </div>
-    <p class="text-gray-500 text-xs">&copy; 2026 SMOK'S TECH</p>
+    <p class="text-gray-500 text-xs mt-4">&copy; 2026 SMOK'S TECH</p>
   </aside>
 
-  <!-- Main -->
+  <!-- Content -->
   <main class="flex-1 p-6 overflow-y-auto grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 
     <!-- Overview Cards -->
-    <div class="glass p-6 space-y-4 hover:scale-105 transition">
+    <div class="glass p-6 space-y-4">
       <h2 class="text-lg font-semibold">Followers</h2>
       <p class="text-3xl font-bold" id="totalFollowers">0</p>
     </div>
-    <div class="glass p-6 space-y-4 hover:scale-105 transition">
+    <div class="glass p-6 space-y-4">
       <h2 class="text-lg font-semibold">Likes</h2>
       <p class="text-3xl font-bold" id="totalLikes">0</p>
     </div>
-    <div class="glass p-6 space-y-4 hover:scale-105 transition">
+    <div class="glass p-6 space-y-4">
       <h2 class="text-lg font-semibold">Comments</h2>
       <p class="text-3xl font-bold" id="totalComments">0</p>
     </div>
@@ -81,6 +80,7 @@
         <h2 class="text-lg font-semibold">Posts</h2>
         <button id="openPostModal" class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 transition">+ Add Post</button>
       </div>
+      <input type="text" id="searchPosts" placeholder="Search posts..." class="w-full p-2 rounded bg-gray-800 border border-gray-600 mb-4">
       <div id="postsList" class="space-y-4"></div>
     </div>
 
@@ -127,11 +127,11 @@
   const closePostModal = document.getElementById('closePostModal');
   const postForm = document.getElementById('postForm');
   const toastEl = document.getElementById('toast');
+  const searchPosts = document.getElementById('searchPosts');
 
   const userAvatar = document.getElementById('userAvatar');
   const avatarUpload = document.getElementById('avatarUpload');
 
-  // Functions
   function showToast(message) {
     toastEl.textContent = message;
     toastEl.classList.add('show');
@@ -143,10 +143,15 @@
     totalLikes.textContent = analyticsData.likes;
     totalComments.textContent = analyticsData.comments;
 
+    renderPosts(posts);
+    renderActivity();
+  }
+
+  function renderPosts(list) {
     postsList.innerHTML = '';
-    posts.forEach((post, index) => {
+    list.forEach((post, index) => {
       const postEl = document.createElement('div');
-      postEl.className = 'glass p-4 flex flex-col md:flex-row md:justify-between items-start md:items-center space-y-2 md:space-y-0 hover:scale-105 transition';
+      postEl.className = 'glass p-4 flex flex-col md:flex-row md:justify-between items-start md:items-center space-y-2 md:space-y-0';
       postEl.innerHTML = `
         <div class="flex items-center space-x-4">
           <img src="${post.image}" alt="Post Image" class="w-16 h-16 rounded object-cover">
@@ -156,7 +161,7 @@
             <p class="text-gray-500 text-xs">${post.date}</p>
           </div>
         </div>
-        <div class="flex space-x-2">
+        <div class="flex space-x-2 mt-2 md:mt-0">
           <button onclick="editPost(${index})" class="px-2 py-1 bg-yellow-500 rounded hover:bg-yellow-600 transition">Edit</button>
           <button onclick="deletePost(${index})" class="px-2 py-1 bg-red-600 rounded hover:bg-red-700 transition">Delete</button>
         </div>
@@ -177,7 +182,6 @@
   function savePosts() {
     localStorage.setItem('posts', JSON.stringify(posts));
     renderDashboard();
-    renderActivity();
   }
 
   function deletePost(index) {
@@ -207,7 +211,7 @@
   // Avatar Upload
   avatarUpload.addEventListener('change', (e) => {
     const file = e.target.files[0];
-    if (file) {
+    if(file){
       const reader = new FileReader();
       reader.onload = () => {
         userAvatar.src = reader.result;
@@ -216,10 +220,9 @@
       reader.readAsDataURL(file);
     }
   });
-  // Load avatar from localStorage
   if(localStorage.getItem('userAvatar')) userAvatar.src = localStorage.getItem('userAvatar');
 
-  // Event Listeners
+  // Post Modal
   openPostModal.addEventListener('click', () => {
     postModal.classList.remove('hidden');
     postForm.onsubmit = (e) => {
@@ -237,8 +240,13 @@
       postForm.reset();
     };
   });
-
   closePostModal.addEventListener('click', () => postModal.classList.add('hidden'));
+
+  // Search Posts
+  searchPosts.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+    renderPosts(posts.filter(p => p.title.toLowerCase().includes(query) || p.caption.toLowerCase().includes(query)));
+  });
 
   // Analytics Chart
   const ctx = document.getElementById('analyticsChart').getContext('2d');
@@ -263,8 +271,7 @@
   });
 
   renderDashboard();
-  renderActivity();
 </script>
 
 </body>
-</html>
+        </html>
