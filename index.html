@@ -1,259 +1,270 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SMORK SaaS Dashboard</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-
-<style>
-body { background:#05060f; color:white; font-family:system-ui; }
-
-/* SIDEBAR */
-.sidebar {
-  width:240px;
-  background:#070914;
-  border-right:1px solid rgba(255,255,255,0.05);
-}
-
-/* GLASS */
-.glass {
-  background: rgba(255,255,255,0.04);
-  backdrop-filter: blur(14px);
-  border:1px solid rgba(255,255,255,0.08);
-}
-
-/* NEON */
-.neon {
-  box-shadow:0 0 20px rgba(250,204,21,0.3);
-}
-
-/* HOVER */
-.hover-scale { transition:.3s; }
-.hover-scale:hover { transform:translateY(-4px) scale(1.02); }
-
-/* TOAST */
-.toast {
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  background:#111;
-  padding:12px;
-  border-radius:8px;
-  opacity:0;
-  transition:.3s;
-}
-
-/* FADE */
-.fade { animation:fade .4s ease; }
-@keyframes fade { from{opacity:0;transform:translateY(10px);} to{opacity:1;} }
-
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Media Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      background: #121212;
+      font-family: 'Inter', sans-serif;
+    }
+    .glass {
+      backdrop-filter: blur(10px) saturate(180%);
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+    }
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.1);
+      padding: 15px 25px;
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
+      color: #fff;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.5s ease;
+      z-index: 999;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  </style>
 </head>
+<body class="text-white">
 
-<body class="flex">
+  <!-- Header -->
+  <header class="flex items-center justify-between p-6 border-b border-gray-700">
+    <h1 class="text-2xl font-bold">SMORK SOCIAL DASHBOARD</h1>
+    <div class="flex items-center space-x-4">
+      <button id="toggleTheme" class="p-2 rounded hover:bg-gray-700 transition">🌓</button>
+      <img src="https://via.placeholder.com/40" class="rounded-full" alt="Avatar">
+    </div>
+  </header>
 
-<!-- SIDEBAR -->
-<div class="sidebar h-screen p-5 flex flex-col justify-between">
+  <!-- Main Dashboard -->
+  <main class="p-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 
-  <div>
-    <h1 class="text-xl font-bold mb-10">⚡ SMORK</h1>
+    <!-- Overview Cards -->
+    <div class="glass p-6 space-y-4 hover:scale-105 transition">
+      <h2 class="text-lg font-semibold">Followers</h2>
+      <p class="text-3xl font-bold" id="totalFollowers">0</p>
+    </div>
+    <div class="glass p-6 space-y-4 hover:scale-105 transition">
+      <h2 class="text-lg font-semibold">Likes</h2>
+      <p class="text-3xl font-bold" id="totalLikes">0</p>
+    </div>
+    <div class="glass p-6 space-y-4 hover:scale-105 transition">
+      <h2 class="text-lg font-semibold">Comments</h2>
+      <p class="text-3xl font-bold" id="totalComments">0</p>
+    </div>
 
-    <div class="space-y-4 text-sm text-gray-400">
-      <p class="cursor-pointer text-white">Dashboard</p>
-      <p>Analytics</p>
-      <p>Posts</p>
-      <p>Activity</p>
+    <!-- Analytics Chart -->
+    <div class="glass p-6 col-span-1 md:col-span-2 lg:col-span-3">
+      <h2 class="text-lg font-semibold mb-4">Engagement Analytics</h2>
+      <canvas id="analyticsChart" class="w-full h-64"></canvas>
+    </div>
+
+    <!-- Posts Management -->
+    <div class="glass p-6 col-span-1 md:col-span-2 lg:col-span-3">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-semibold">Posts</h2>
+        <button id="openPostModal" class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 transition">+ Add Post</button>
+      </div>
+      <div id="postsList" class="space-y-4">
+        <!-- Posts dynamically inserted here -->
+      </div>
+    </div>
+
+    <!-- Activity Feed -->
+    <div class="glass p-6 col-span-1 md:col-span-2 lg:col-span-3">
+      <h2 class="text-lg font-semibold mb-4">Recent Activity</h2>
+      <ul id="activityFeed" class="space-y-2 text-gray-300">
+        <!-- Activity dynamically inserted -->
+      </ul>
+    </div>
+
+    <!-- Profile Section -->
+    <div class="glass p-6 col-span-1 md:col-span-2 lg:col-span-3 flex flex-col md:flex-row items-center md:justify-between space-y-4 md:space-y-0">
+      <div class="flex items-center space-x-4">
+        <img src="https://via.placeholder.com/80" class="rounded-full" alt="User Avatar">
+        <div>
+          <h2 class="font-bold text-xl">Smork FrmDaEast</h2>
+          <p class="text-gray-300">Frontend / Mobile Dev</p>
+        </div>
+      </div>
+      <div class="flex space-x-4">
+        <a href="https://www.instagram.com/smork_frmdaeast?igsh=MWwwMHowMGhvcmY0dg==" target="_blank" class="hover:text-pink-500 transition">Instagram</a>
+        <a href="https://www.facebook.com/share/1DhHJPTRXL/" target="_blank" class="hover:text-blue-500 transition">Facebook</a>
+        <a href="https://github.com/Smorkfrmdaeast" target="_blank" class="hover:text-gray-400 transition">GitHub</a>
+        <a href="mailto:ifeanyinuels32@gmail.com" class="hover:text-green-500 transition">Email</a>
+        <span>WhatsApp: 09019071679</span>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Post Modal -->
+  <div id="postModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="glass p-6 w-96 rounded">
+      <h2 class="text-lg font-bold mb-4">Add/Edit Post</h2>
+      <form id="postForm" class="space-y-4">
+        <input type="text" id="postTitle" placeholder="Title" class="w-full p-2 rounded bg-gray-800 border border-gray-600">
+        <textarea id="postCaption" placeholder="Caption" class="w-full p-2 rounded bg-gray-800 border border-gray-600"></textarea>
+        <input type="text" id="postImage" placeholder="Image URL" class="w-full p-2 rounded bg-gray-800 border border-gray-600">
+        <div class="flex justify-end space-x-2">
+          <button type="button" id="closePostModal" class="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 transition">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 transition">Save</button>
+        </div>
+      </form>
     </div>
   </div>
 
-  <!-- SOCIAL -->
-  <div class="flex gap-4 text-lg">
-    <a href="https://github.com/Smorkfrmdaeast" target="_blank"><i class="fa-brands fa-github"></i></a>
-    <a href="https://www.instagram.com/smork_frmdaeast" target="_blank"><i class="fa-brands fa-instagram"></i></a>
-    <a href="https://www.facebook.com/share/1DhHJPTRXL/" target="_blank"><i class="fa-brands fa-facebook"></i></a>
-  </div>
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
 
-</div>
+  <script>
+    // State
+    let posts = JSON.parse(localStorage.getItem('posts')) || [];
+    let analyticsData = { followers: 1200, likes: 4500, comments: 800 };
 
-<!-- MAIN -->
-<div class="flex-1 p-6">
+    // DOM Elements
+    const postsList = document.getElementById('postsList');
+    const totalFollowers = document.getElementById('totalFollowers');
+    const totalLikes = document.getElementById('totalLikes');
+    const totalComments = document.getElementById('totalComments');
+    const activityFeed = document.getElementById('activityFeed');
+    const postModal = document.getElementById('postModal');
+    const openPostModal = document.getElementById('openPostModal');
+    const closePostModal = document.getElementById('closePostModal');
+    const postForm = document.getElementById('postForm');
+    const toastEl = document.getElementById('toast');
 
-<!-- HEADER -->
-<div class="flex justify-between items-center mb-6">
-  <h2 class="text-xl font-bold">Dashboard</h2>
+    // Functions
+    function showToast(message) {
+      toastEl.textContent = message;
+      toastEl.classList.add('show');
+      setTimeout(() => toastEl.classList.remove('show'), 2500);
+    }
 
-  <div class="flex items-center gap-4">
-    <button onclick="toggleTheme()" class="text-sm text-gray-400">Toggle Theme</button>
-    <img src="https://i.pravatar.cc/40" class="rounded-full"/>
-  </div>
-</div>
+    function renderDashboard() {
+      totalFollowers.textContent = analyticsData.followers;
+      totalLikes.textContent = analyticsData.likes;
+      totalComments.textContent = analyticsData.comments;
 
-<!-- STATS -->
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-  <div class="glass p-4 rounded-xl hover-scale neon">Followers<br><span class="text-yellow-400 text-xl">12.4K</span></div>
-  <div class="glass p-4 rounded-xl hover-scale">Likes<br><span class="text-green-400 text-xl">8.1K</span></div>
-  <div class="glass p-4 rounded-xl hover-scale">Comments<br><span class="text-blue-400 text-xl">1.2K</span></div>
-  <div class="glass p-4 rounded-xl hover-scale">Shares<br><span class="text-pink-400 text-xl">900</span></div>
-</div>
+      postsList.innerHTML = '';
+      posts.forEach((post, index) => {
+        const postEl = document.createElement('div');
+        postEl.className = 'glass p-4 flex flex-col md:flex-row md:justify-between items-start md:items-center space-y-2 md:space-y-0 hover:scale-105 transition';
+        postEl.innerHTML = `
+          <div class="flex items-center space-x-4">
+            <img src="${post.image}" alt="Post Image" class="w-16 h-16 rounded object-cover">
+            <div>
+              <h3 class="font-bold">${post.title}</h3>
+              <p class="text-gray-300 text-sm">${post.caption}</p>
+              <p class="text-gray-500 text-xs">${post.date}</p>
+            </div>
+          </div>
+          <div class="flex space-x-2">
+            <button onclick="editPost(${index})" class="px-2 py-1 bg-yellow-500 rounded hover:bg-yellow-600 transition">Edit</button>
+            <button onclick="deletePost(${index})" class="px-2 py-1 bg-red-600 rounded hover:bg-red-700 transition">Delete</button>
+          </div>
+        `;
+        postsList.appendChild(postEl);
+      });
+    }
 
-<!-- CHART -->
-<div class="glass p-4 rounded-xl mb-6 hover-scale">
-  <h3 class="mb-2">Engagement</h3>
-  <canvas id="chart" height="100"></canvas>
-</div>
+    function renderActivity() {
+      activityFeed.innerHTML = '';
+      posts.slice(-5).reverse().forEach(post => {
+        const li = document.createElement('li');
+        li.textContent = `New post added: ${post.title}`;
+        activityFeed.appendChild(li);
+      });
+    }
 
-<!-- POSTS -->
-<div class="flex justify-between mb-3">
-  <h3>Posts</h3>
-  <button onclick="openModal()" class="bg-yellow-400 text-black px-3 py-1 rounded neon">+ Add</button>
-</div>
+    function savePosts() {
+      localStorage.setItem('posts', JSON.stringify(posts));
+      renderDashboard();
+      renderActivity();
+    }
 
-<div id="posts" class="grid md:grid-cols-3 gap-4"></div>
+    function deletePost(index) {
+      posts.splice(index, 1);
+      savePosts();
+      showToast('Post deleted');
+    }
 
-<!-- ACTIVITY -->
-<div class="glass p-4 rounded-xl mt-6">
-  <h3>Activity</h3>
-  <div id="activity"></div>
-</div>
+    function editPost(index) {
+      const post = posts[index];
+      postModal.classList.remove('hidden');
+      document.getElementById('postTitle').value = post.title;
+      document.getElementById('postCaption').value = post.caption;
+      document.getElementById('postImage').value = post.image;
+      postForm.onsubmit = (e) => {
+        e.preventDefault();
+        post.title = document.getElementById('postTitle').value;
+        post.caption = document.getElementById('postCaption').value;
+        post.image = document.getElementById('postImage').value;
+        post.date = new Date().toLocaleString();
+        savePosts();
+        postModal.classList.add('hidden');
+        showToast('Post updated');
+      };
+    }
 
-</div>
-
-<!-- MODAL -->
-<div id="modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center">
-  <div class="glass p-6 rounded w-80">
-    <input id="title" placeholder="Title" class="w-full p-2 mb-2 text-black rounded"/>
-    <input id="img" placeholder="Image URL" class="w-full p-2 mb-2 text-black rounded"/>
-    <input id="caption" placeholder="Caption" class="w-full p-2 mb-2 text-black rounded"/>
-    <button onclick="savePost()" class="w-full bg-yellow-400 p-2 rounded text-black">Save</button>
-    <button onclick="closeModal()" class="mt-2 text-gray-400">Cancel</button>
-  </div>
-</div>
-
-<div id="toast" class="toast"></div>
-
-<!-- WHATSAPP -->
-<a href="https://wa.me/2349019071679" target="_blank"
-class="fixed bottom-5 left-5 bg-green-500 p-4 rounded-full text-black neon">
-<i class="fa-brands fa-whatsapp"></i>
-</a>
-
-<script>
-// STATE
-const state = {
-  posts: JSON.parse(localStorage.getItem("posts")) || [],
-  activity:[]
-};
-
-renderPosts();
-drawChart();
-
-// MODAL
-function openModal(){ modal.classList.remove("hidden"); }
-function closeModal(){ modal.classList.add("hidden"); }
-
-// SAVE
-function savePost(){
-  const p = {
-    title:title.value,
-    img:img.value,
-    caption:caption.value,
-    likes:0
-  };
-
-  if(!p.title) return toast("Fill fields");
-
-  state.posts.unshift(p);
-  localStorage.setItem("posts", JSON.stringify(state.posts));
-
-  addActivity("New post added");
-  renderPosts();
-  closeModal();
-  toast("Saved ✅");
-}
-
-// LIKE
-function likePost(i){
-  state.posts[i].likes++;
-  localStorage.setItem("posts", JSON.stringify(state.posts));
-  addActivity("Post liked ❤️");
-  renderPosts();
-}
-
-// DELETE
-function deletePost(i){
-  state.posts.splice(i,1);
-  localStorage.setItem("posts", JSON.stringify(state.posts));
-  addActivity("Post deleted ❌");
-  renderPosts();
-}
-
-// RENDER
-function renderPosts(){
-  posts.innerHTML="";
-  state.posts.forEach((p,i)=>{
-    posts.innerHTML+=`
-    <div class="glass p-3 rounded-xl hover-scale fade">
-      <img src="${p.img}" class="h-32 w-full object-cover rounded mb-2"/>
-      <h3>${p.title}</h3>
-      <p class="text-gray-400 text-sm">${p.caption}</p>
-
-      <div class="flex justify-between mt-2 text-sm">
-        <span>❤️ ${p.likes}</span>
-        <div class="flex gap-2">
-          <button onclick="likePost(${i})">Like</button>
-          <button onclick="deletePost(${i})" class="text-red-400">Delete</button>
-        </div>
-      </div>
-    </div>`;
-  });
-}
-
-// ACTIVITY
-function addActivity(text){
-  state.activity.unshift(text);
-  activity.innerHTML = state.activity.slice(0,5)
-    .map(a=>`<div class="text-gray-400 text-sm fade">${a}</div>`)
-    .join("");
-}
-
-// TOAST
-function toast(msg){
-  const t=document.getElementById("toast");
-  t.innerText=msg;
-  t.style.opacity=1;
-  setTimeout(()=>t.style.opacity=0,2000);
-}
-
-// CHART
-function drawChart(){
-  const ctx=chart.getContext("2d");
-  const data=[40,80,60,90,50];
-
-  let p=0;
-  function draw(){
-    ctx.clearRect(0,0,300,100);
-    p+=0.05;
-
-    data.forEach((v,i)=>{
-      const h=v*p;
-      ctx.fillStyle="#facc15";
-      ctx.fillRect(i*50+10,100-h,30,h);
+    // Event Listeners
+    openPostModal.addEventListener('click', () => {
+      postModal.classList.remove('hidden');
+      postForm.onsubmit = (e) => {
+        e.preventDefault();
+        const newPost = {
+          title: document.getElementById('postTitle').value,
+          caption: document.getElementById('postCaption').value,
+          image: document.getElementById('postImage').value,
+          date: new Date().toLocaleString()
+        };
+        posts.push(newPost);
+        savePosts();
+        postModal.classList.add('hidden');
+        showToast('Post added');
+        postForm.reset();
+      };
     });
 
-    if(p<1) requestAnimationFrame(draw);
-  }
-  draw();
-}
+    closePostModal.addEventListener('click', () => postModal.classList.add('hidden'));
 
-// THEME
-function toggleTheme(){
-  document.body.style.background =
-    document.body.style.background === "white" ? "#05060f" : "white";
-}
-</script>
+    // Analytics Chart
+    const ctx = document.getElementById('analyticsChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [
+          { label: 'Followers', data: [1200, 1250, 1300, 1320, 1350, 1400, 1450], borderColor: '#4ade80', backgroundColor: 'rgba(74, 222, 128, 0.2)', tension: 0.4 },
+          { label: 'Likes', data: [4000, 4100, 4300, 4400, 4500, 4600, 4700], borderColor: '#60a5fa', backgroundColor: 'rgba(96, 165, 250, 0.2)', tension: 0.4 },
+          { label: 'Comments', data: [600, 650, 700, 720, 750, 770, 800], borderColor: '#facc15', backgroundColor: 'rgba(250, 204, 21, 0.2)', tension: 0.4 }
+        ]
+      },
+      options: { responsive: true, plugins: { legend: { labels: { color: 'white' } } }, scales: { x: { ticks: { color: 'white' } }, y: { ticks: { color: 'white' } } } }
+    });
 
+    // Dark/Light Toggle
+    document.getElementById('toggleTheme').addEventListener('click', () => {
+      document.body.classList.toggle('bg-white');
+      document.body.classList.toggle('text-black');
+      document.querySelectorAll('.glass').forEach(el => el.classList.toggle('bg-white/5'));
+    });
+
+    // Initial Render
+    renderDashboard();
+    renderActivity();
+  </script>
 </body>
-</html>
+  </html>
