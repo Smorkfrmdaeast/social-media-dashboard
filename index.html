@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMORK Social SaaS</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+<style>
+body { background:#0b0f1a; color:white; font-family:system-ui; }
+
+.glass {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(12px);
+  border:1px solid rgba(255,255,255,0.1);
+}
+
+.toast {
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:#111;
+  padding:12px;
+  border-radius:8px;
+  opacity:0;
+  transition:.3s;
+}
+</style>
+</head>
+
+<body class="p-4">
+
+<!-- HEADER -->
+<div class="flex justify-between items-center mb-6">
+  <h1 class="font-bold text-xl">📊 SMORK SOCIAL</h1>
+
+  <div class="flex items-center gap-3">
+    <a href="https://github.com/Smorkfrmdaeast" target="_blank"><i class="fa-brands fa-github"></i></a>
+    <a href="https://www.instagram.com/smork_frmdaeast" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+    <a href="https://www.facebook.com/share/1DhHJPTRXL/" target="_blank"><i class="fa-brands fa-facebook"></i></a>
+    <img src="https://i.pravatar.cc/40" class="rounded-full"/>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="glass p-4 rounded-xl mb-6 flex justify-between items-center">
+  <div>
+    <h2 class="font-bold">SMORK</h2>
+    <p class="text-gray-400 text-sm">Software Engineer / Web Developer</p>
+    <p class="text-xs text-gray-500">ifeanyinuels32@gmail.com</p>
+  </div>
+
+  <a href="https://wa.me/2349019071679" target="_blank" class="bg-green-500 px-3 py-2 rounded text-black">
+    Chat
+  </a>
+</div>
+
+<!-- SEARCH -->
+<input oninput="searchPost(this.value)" placeholder="Search posts..." class="w-full p-2 mb-6 rounded text-black"/>
+
+<!-- STATS -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+  <div class="glass p-3 rounded">Followers<br><b>12.4K</b></div>
+  <div class="glass p-3 rounded">Likes<br><b>8.1K</b></div>
+  <div class="glass p-3 rounded">Comments<br><b>1.2K</b></div>
+  <div class="glass p-3 rounded">Shares<br><b>900</b></div>
+</div>
+
+<!-- POSTS -->
+<div class="flex justify-between mb-3">
+  <h2>Posts</h2>
+  <button onclick="openModal()" class="bg-yellow-400 text-black px-3 py-1 rounded">+ Add</button>
+</div>
+
+<div id="posts" class="grid md:grid-cols-3 gap-4"></div>
+
+<!-- MODAL -->
+<div id="modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center">
+  <div class="glass p-6 rounded w-80">
+    <input id="title" placeholder="Title" class="w-full p-2 mb-2 text-black rounded"/>
+    <input id="img" placeholder="Image URL" class="w-full p-2 mb-2 text-black rounded"/>
+    <input id="caption" placeholder="Caption" class="w-full p-2 mb-2 text-black rounded"/>
+    <button onclick="savePost()" class="w-full bg-yellow-400 p-2 rounded text-black">Save</button>
+    <button onclick="closeModal()" class="mt-2 text-gray-400">Cancel</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<!-- FLOATING WHATSAPP -->
+<a href="https://wa.me/2349019071679" target="_blank"
+class="fixed bottom-5 left-5 bg-green-500 p-4 rounded-full text-black">
+<i class="fa-brands fa-whatsapp"></i>
+</a>
+
+<script>
+const state = {
+  posts: JSON.parse(localStorage.getItem("posts")) || [],
+  filtered: null
+};
+
+renderPosts();
+
+// SEARCH
+function searchPost(q){
+  state.filtered = state.posts.filter(p =>
+    p.title.toLowerCase().includes(q.toLowerCase())
+  );
+  renderPosts();
+}
+
+// MODAL
+function openModal(){ modal.classList.remove("hidden"); }
+function closeModal(){ modal.classList.add("hidden"); }
+
+// SAVE
+function savePost(){
+  const p = {
+    title:title.value,
+    img:img.value,
+    caption:caption.value,
+    likes:0
+  };
+
+  if(!p.title) return toast("Fill fields");
+
+  state.posts.unshift(p);
+  localStorage.setItem("posts", JSON.stringify(state.posts));
+  renderPosts();
+  closeModal();
+  toast("Post Added ✅");
+}
+
+// LIKE
+function likePost(i){
+  state.posts[i].likes++;
+  localStorage.setItem("posts", JSON.stringify(state.posts));
+  renderPosts();
+}
+
+// DELETE
+function deletePost(i){
+  state.posts.splice(i,1);
+  localStorage.setItem("posts", JSON.stringify(state.posts));
+  renderPosts();
+  toast("Deleted ❌");
+}
+
+// RENDER
+function renderPosts(){
+  posts.innerHTML="";
+  const list = state.filtered || state.posts;
+
+  list.forEach((p,i)=>{
+    posts.innerHTML+=`
+    <div class="glass p-3 rounded">
+      <img src="${p.img}" class="h-32 w-full object-cover rounded mb-2"/>
+      <h3>${p.title}</h3>
+      <p class="text-gray-400 text-sm">${p.caption}</p>
+
+      <div class="flex justify-between mt-2 text-sm">
+        <span>💙 ${p.likes}</span>
+        <div class="flex gap-2">
+          <button onclick="likePost(${i})">Like</button>
+          <button onclick="deletePost(${i})" class="text-red-400">Delete</button>
+        </div>
+      </div>
+    </div>`;
+  });
+}
+
+// TOAST
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.innerText=msg;
+  t.style.opacity=1;
+  setTimeout(()=>t.style.opacity=0,2000);
+}
+</script>
+
+</body>
+      </html>
